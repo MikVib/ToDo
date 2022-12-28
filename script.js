@@ -19,31 +19,46 @@
 const form = document.querySelector('form')
 
 
+
 let todos = []
 
-const createTask = () =>{
+const createTask = () => {
     const message = document.querySelector('input')
-    
-    if(message.value && message.value !== ' '){
-    const task = {
-        id:new Date().toISOString(),
-        number:todos.length+1,
-        message:message.value,
-        status:false,
-        date:new Date()
+
+    if (message.value && message.value !== ' ') {
+        const task = {
+            id: new Date().toISOString(),
+            // number:todos.index+1,
+            message: message.value,
+            status: false,
+            date: new Date()
+        }
+
+        // console.log(task);
+
+        let getLocalStorageData = localStorage.getItem("Todo");
+        if (getLocalStorageData == null) {
+            storageArray = [];
+        } else {
+            storageArray = JSON.parse(getLocalStorageData);
+        }
+        storageArray.push(task);
+        localStorage.setItem("Todo", JSON.stringify(storageArray));
+
+        todos = [task, ...todos]
+
+        // todos.push(task)
+        // console.log([...todos,1]);
+        // console.log(todos.length);
+
+        renderTodos()
     }
-    todos = [task,...todos]
-    // todos.push(task)
-    // console.log([...todos,1]);
-    // console.log(todos.length);
-    
-    renderTodos()}
 }
 
 
 
-form.addEventListener('submit',e=>{
-    
+form.addEventListener('submit', e => {
+
     e.preventDefault()
     createTask()
     form.reset();
@@ -51,15 +66,18 @@ form.addEventListener('submit',e=>{
 })
 
 
-const renderTodos = () =>{
+const renderTodos = () => {
     const output = document.querySelector('#output')
-    output.innerHTML=''
-    todos.forEach(el=>{
+    const footer = document.querySelector('.footer')
+
+
+    output.innerHTML = ''
+    todos.forEach((el, index) => {
         const block = document.createElement('div')
         const message = document.createElement('p')
         const dateDom = document.createElement('p')
         const statusMessage = document.createElement('p')
-        
+
         const numberTodo = document.createElement('p')
         const completTodo = document.createElement('p')
 
@@ -68,76 +86,87 @@ const renderTodos = () =>{
         const editTodo = document.createElement('img')
 
         deleteTodo.src = "./images/dele.png"
-        doneTodo.src = el.status?'./images/ch.png':'./images/n_ch.png'
+        doneTodo.src = el.status ? './images/ch.png' : './images/n_ch.png'
         editTodo.src = "./images/edit.png"
 
         message.textContent = el.message
         statusMessage.textContent = el.status
-        ?'TODO IS DONE'
-        :'YOUE TODO IS NOT DONE'
+            ? 'TODO IS DONE'
+            : 'YOUE TODO IS NOT DONE'
 
         block.classList = el.status
-        ?'.done'
-        :'.notDone'
-        
+            ? 'done'
+            : 'notDone'
+
         message.style.textDecorationLine = el.status
-        ? 'line-through'
-        :'none'
+            ? 'line-through'
+            : 'none'
+
+        footer.style.visibility = todos.length > 0
+            ? 'visible'
+            : 'hidden'
+
+        console.log(`todos index ${index + 1}`);
+
+        console.log(`todos length ${todos.length}`);
 
         const date = el.date
-        const number = el.number
+        const number = index + 1
 
         const AllTasks = document.querySelector(".allTasks");
-        AllTasks.textContent = todos.length; 
+        AllTasks.textContent = todos.length;
 
         const completedTasks = document.querySelector(".footer span");
 
-        const completed = todos.filter(el => el.status == false);
-        console.log(completed.length);
-        
+        const completed = todos.filter(el => el.status === false);
+        console.log(`NOT DONE:${completed.length}`);
+
 
         // completedTasks.textContent = completed.length
 
-        const currentDate = `Date: ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes()}:${date.getSeconds()<10?'0'+date.getSeconds():date.getSeconds()}
+        const currentDate = `Date: ${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()}:${date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()}
 `
 
 
 
         dateDom.textContent = currentDate
-        
 
-        doneTodo.addEventListener('click',()=>{
+
+        doneTodo.addEventListener('click', () => {
             doneFunc(el.id)
 
         })
 
-        deleteTodo.addEventListener('click',()=>{
-            if(el.status === true){
-            deleteFunc(el.id)
-            }else(alert('Task not completed'))
+        deleteTodo.addEventListener('click', () => {
+            if (el.status === true) {
+                deleteFunc(el.id)
+            } else (alert('Task not completed'))
 
         })
 
-        editTodo.addEventListener('click',()=>{
-            if(el.status !== true){
-            editFunc(el.id)
-            }else(alert('The task has already been completed, editing is prohibited'))
+        editTodo.addEventListener('click', () => {
+            if (el.status !== true) {
+                editFunc(el.id)
+            } else (alert('The task has already been completed, editing is prohibited'))
 
         })
 
+        // localStorage.setItem(todos, JSON.stringify(todos));
+        // todos = JSON.parse(localStorage.getItem("todos"));
 
-        block.append(numberTodo,message,dateDom,deleteTodo,doneTodo,editTodo,statusMessage)
+        block.append(numberTodo, message, dateDom, deleteTodo, doneTodo, editTodo, statusMessage)
         numberTodo.append(number)
-        output.append(block,completTodo)
+        output.append(block, completTodo,)
     })
 }
 
 
-const doneFunc = (id) =>{
+
+const doneFunc = (id) => {
     // alert('its done')
     // console.log(id);
-    todos = todos.map(el=>{
-        if(id===el.id){
+    todos = todos.map(el => {
+        if (id === el.id) {
             // console.log(el.message);
             el.status = !el.status
         }
@@ -147,39 +176,39 @@ const doneFunc = (id) =>{
 }
 
 
-const deleteFunc = (id) =>{
+const deleteFunc = (id) => {
     // alert('its delete')
     // console.log(id);
-    todos = todos.filter(el=>{
-        return id!==el.id
+    todos = todos.filter(el => {
+        return id !== el.id
     })
     renderTodos()
 }
 
-const editFunc = (id) =>{
+const editFunc = (id) => {
     // alert('its edit')
     // console.log(id);
-    
+
     const edit = prompt('')
-    if(edit !== ' ' && edit !== null && edit !== ''){
-        todos = todos.map(el=>{
-            if(id===el.id){
+    if (edit !== ' ' && edit !== null && edit !== '') {
+        todos = todos.map(el => {
+            if (id === el.id) {
                 // console.log(el.message);
                 el.message = edit
-                } 
+            }
             return el
         })
         renderTodos()
-    }else{
+    } else {
         alert('Enter Task')
     }
 }
 
 const deleteAllBtn = document.querySelector(".footer button");
 
-deleteAllBtn.onclick = ()=>{
-    todos = []; 
-    renderTodos(); 
+deleteAllBtn.onclick = () => {
+    todos = [];
+    renderTodos();
 }
 
 

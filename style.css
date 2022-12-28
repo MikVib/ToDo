@@ -91,6 +91,7 @@ form {
 }
 
 .footer{
+    visibility:hidden;
     display: flex;
     width: 100%;
     margin-top: 20px;
@@ -140,8 +141,8 @@ form {
     overflow-y: auto;
 }
 
-.output p {
-    padding: 15px 15px 15px 15px;
+.notDone .done p {
+    padding: 15px;
 }
 
 .output img{
